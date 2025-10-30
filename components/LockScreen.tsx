@@ -56,7 +56,6 @@ export default function LockScreen() {
           I am {article} {currentWord}
         </h1>
       </div>
-chagng1
       <UnlockPrompt />
     </div>
   );
