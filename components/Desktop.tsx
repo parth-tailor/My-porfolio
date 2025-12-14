@@ -43,7 +43,7 @@ const DesktopIcon = ({ name, icon, onDoubleClick }: { name: string; icon: string
   );
 };
 
-const DraggableDesktopIcon = ({ item }: { item: { name: string; icon: string; action: () => void; position: { x: number; y: number } } }) => {
+const PositionedDesktopIcon = ({ item }: { item: { name: string; icon: string; action: () => void; position: { x: number; y: number } } }) => {
   if (!item.position) return null; // Don't render on the server or before the position is calculated
 
   return (
@@ -161,7 +161,7 @@ export default function Desktop() {
       {/* Desktop Icons - Each in its own container for initial positioning */}
       <div className="absolute inset-0">
         {desktopItems.map((item) => (
-          <DraggableDesktopIcon key={item.name} item={item} />
+          <PositionedDesktopIcon key={item.name} item={item} />
         ))}
       </div>
 
