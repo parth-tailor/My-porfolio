@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from 'next/navigation';
-import UnlockPrompt from "./SwipeToUnlock";
 import ParticleBackground from "./ParticleBackground";
 
 
@@ -55,7 +54,9 @@ export default function LockScreen() {
           I am {article} {currentWord}
         </h1>
       </div>
-      <UnlockPrompt />
+      <div className="absolute bottom-16 w-full flex justify-center">
+        <p className="text-white/80 text-lg animate-pulse tracking-widest">Press Enter to Unlock</p>
+      </div>
     </div>
   );
 }
