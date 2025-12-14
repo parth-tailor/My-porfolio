@@ -1,14 +1,14 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from 'next/navigation';
-import ParticleBackground from "./ParticleBackground";
 import UnlockPrompt from "./SwipeToUnlock";
+import ParticleBackground from "./ParticleBackground";
+
 
 export default function LockScreen() {
   const words = ["Engineer", "Dancer", "Roboticist", "Editor", "Creator", "Learner"];
   const [index, setIndex] = useState(0);
   const [opacity, setOpacity] = useState(1); // Ensure lock screen is visible initially
-  const [unlocked, setUnlocked] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -16,6 +16,14 @@ export default function LockScreen() {
     const wordInterval = setInterval(() => setIndex((prev) => (prev + 1) % words.length), 2000);
     return () => clearInterval(wordInterval);
   }, [words.length]); // Dependency on words.length for clarity
+
+  const handleUnlock = useCallback(() => {
+    console.log("Unlocking...");
+    setOpacity(0); // Start fade out
+    setTimeout(() => {
+      router.push('/desktop');
+    }, 1000); // Wait for fade-out animation to complete
+  }, [router]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -27,16 +35,7 @@ export default function LockScreen() {
     window.addEventListener('keydown', handleKeyDown);
 
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []); // Empty dependency array ensures this runs only once
-
-  const handleUnlock = () => {
-    console.log("Unlocking...");
-    setOpacity(0); // Start fade out
-    setUnlocked(true);
-    setTimeout(() => {
-      router.push('/desktop');
-    }, 1000); // Wait for fade-out animation to complete
-  };
+  }, [handleUnlock]);
 
   const currentWord = words[index];
   const article = /^[AEIOU]/.test(currentWord) ? "an" : "a";

@@ -1,30 +1,9 @@
 "use client";
 
-import { Wifi, BatteryFull } from 'lucide-react';
-import { useState, useEffect, FC, useRef, MouseEvent } from 'react';
+import Image from 'next/image';
+import React, { useState, useEffect, useRef, ReactNode } from 'react';
 
-const Icon: FC<{ src: string; className: string; alt: string }> = ({ src, className, alt }) => {
-  const [svgContent, setSvgContent] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch(src)
-      .then((res) => res.text())
-      .then((text) => {
-        if (text.startsWith('<svg')) {
-          setSvgContent(text);
-        }
-      })
-      .catch(console.error);
-  }, [src]);
-
-  if (!svgContent) {
-    return <div className={className} aria-label={alt} role="img" />;
-  }
-
-  return <div className={className} dangerouslySetInnerHTML={{ __html: svgContent }} aria-label={alt} role="img" />;
-};
-
-const Window = ({ title, children, onClose }: { title: string, children: React.ReactNode, onClose: () => void }) => {
+const Window = ({ title, children, onClose }: { title: string, children: ReactNode, onClose: () => void }) => {
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-white bg-opacity-80 backdrop-blur-xl rounded-lg shadow-2xl flex flex-col text-black">
       <div className="flex items-center justify-between px-2 py-1 bg-gray-200 bg-opacity-60 rounded-t-lg">
@@ -48,26 +27,46 @@ const DockIcon = ({ name, icon, onClick }: { name:string, icon: string, onClick:
     <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 bg-opacity-80 text-white text-[9px] whitespace-nowrap rounded py-1 px-2">
       {name}
     </div>
-    <img src={icon} alt={name} className="w-12 h-12" draggable="false" />
+    <Image src={icon} alt={name} width={48} height={48} className="w-12 h-12" draggable={false} />
   </div>
 );
 
-const DesktopIcon = ({ name, icon, onDoubleClick }: { name: string; icon: string; onDoubleClick: () => void }) => (
-  <div 
-    className="flex flex-col items-center space-y-1 p-2 rounded hover:bg-white hover:bg-opacity-20"
-    onDoubleClick={onDoubleClick}
-  >
-    <img src={icon} alt={name} className="w-14 h-14" draggable="false" />
-    <span className="text-white text-xs shadow-black [text-shadow:0_1px_2px_var(--tw-shadow-color)]">{name}</span>
-  </div>
-);
+const DesktopIcon = ({ name, icon, onDoubleClick }: { name: string; icon: string; onDoubleClick: () => void }) => {
+  return (
+    <div
+      className="flex flex-col items-center space-y-1 p-2 rounded hover:bg-white hover:bg-opacity-20 cursor-pointer"
+      onDoubleClick={onDoubleClick}
+    >
+      <Image src={icon} alt={name} width={56} height={56} className="w-14 h-14 desktop-icon-handle" draggable={false} />
+      <span className="text-white text-xs shadow-black [text-shadow:0_1px_2px_var(--tw-shadow-color)]">{name}</span>
+    </div>
+  );
+};
+
+const DraggableDesktopIcon = ({ item }: { item: { name: string; icon: string; action: () => void; position: { x: number; y: number } } }) => {
+  if (!item.position) return null; // Don't render on the server or before the position is calculated
+
+  return (
+    <div className="absolute" style={{ left: item.position.x, top: item.position.y }}>
+      <DesktopIcon name={item.name} icon={item.icon} onDoubleClick={item.action} />
+    </div>
+  );
+};
 
 export default function Desktop() {
-  const [time, setTime] = useState('');
   const [windows, setWindows] = useState<{ [key: string]: boolean }>({
-    'Projects': false,
-    'Contact': false,
+    'CV': false,
     'Junk Ideas': false,
+    'Mail': false,
+    'Spidy Bot': false,
+    'Dance': false,
+    'Stagnomage': false,
+    'CARS lab at IITK': false,
+    'Bionic Arm': false,
+    'Team Vibhav': false,
+    'Park Robotics': false,
+    'CriChess': false,
+    'Drone': false,
   });
 
   const openWindow = (name: string) => {
@@ -131,60 +130,66 @@ export default function Desktop() {
     };
   }, []);
 
+  const dockItems: { name: string; icon: string; action?: () => void }[] = [
+    { name: 'Media', icon: '/icons/media.png', action: () => {} }, // Placeholder action
+    { name: 'CV', icon: '/icons/cv.png', action: () => openWindow('CV') },
+    { name: 'Mail', icon: '/icons/mail.png', action: () => openWindow('Mail') },
+    { name: 'LinkedIn', icon: '/icons/linkedin.png', action: () => window.open('https://www.linkedin.com/in/parth-tailor-89a4351b8/', '_blank') },
+    { name: 'Preview', icon: '/icons/preview.png', action: () => {} }, // Placeholder action
+    { name: 'Junk Ideas', icon: '/icons/bin.png', action: () => openWindow('Junk Ideas') },
+  ];  
+
+  const [desktopItems, setDesktopItems] = useState<{ name: string; icon: string; action: () => void; position: { x: number; y: number } }[]>([]);
+
   useEffect(() => {
-    const updateClock = () => {
-      const now = new Date();
-      setTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-    };
-    updateClock();
-    const timerId = setInterval(updateClock, 1000);
-    return () => clearInterval(timerId);
+    setDesktopItems([
+      { name: 'Spidy Bot', icon: '/icons/spidybot.png', action: () => openWindow('Spidy Bot'), position: { x: window.innerWidth - 540, y: 40 } },
+      { name: 'Dance', icon: '/icons/dance.png', action: () => openWindow('Dance'), position: { x: window.innerWidth - 420, y: 140 } },
+      { name: 'Stagnomage', icon: '/icons/stagnomage.png', action: () => openWindow('Stagnomage'), position: { x: window.innerWidth - 520, y: 240 } },
+      { name: 'CARS-Lab@IITK', icon: '/icons/iitk.png', action: () => openWindow('CARS lab at IITK'), position: { x: window.innerWidth - 720, y: 340 } },
+      { name: 'Bionic Arm', icon: '/icons/bionic.png', action: () => openWindow('Bionic Arm'), position: { x: window.innerWidth - 670, y: 440 } },
+      { name: 'Team Vibhav', icon: '/icons/vibhav.png', action: () => openWindow('Team Vibhav'), position: { x: 650, y: 40 } },
+      { name: 'Park Robotics', icon: '/icons/park-robotics.png', action: () => openWindow('Park Robotics'), position: { x: 520, y: 140 } },
+      { name: 'CriChess', icon: '/icons/crichess.png', action: () => openWindow('CriChess'), position: { x: 430, y: 240 } },
+      { name: 'Drone', icon: '/icons/drone.png', action: () => openWindow('Drone'), position: { x: 560, y: 340 } },
+    ]);
   }, []);
-
-  const dockItems = [
-    { name: 'Finder', icon: '/icons/finder.png' },
-    { name: 'Projects', icon: '/icons/folder.png' },
-    { name: 'Contact', icon: '/icons/contact.png' },
-    { name: 'Junk Ideas', icon: '/icons/bin.png' },
-  ];
-
-  const desktopItems = [
-    { name: 'Projects', icon: '/icons/folder.png', action: () => openWindow('Projects') },
-    { name: 'Contact Me', icon: '/icons/contact.png', action: () => openWindow('Contact') },
-  ];
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-cover bg-center" style={{ backgroundImage: "url('/wallpaper.jpg')" }}>
 
-      {/* Desktop Icons */}
-      <div className="absolute top-4 right-4 flex flex-col items-end space-y-4">
-        {desktopItems.map(item => (
-          <DesktopIcon key={item.name} name={item.name} icon={item.icon} onDoubleClick={item.action} />
+      {/* Desktop Icons - Each in its own container for initial positioning */}
+      <div className="absolute inset-0">
+        {desktopItems.map((item) => (
+          <DraggableDesktopIcon key={item.name} item={item} />
         ))}
       </div>
 
       {/* Windows */}
-      {windows['Projects'] && (
-        <Window title="Projects" onClose={() => closeWindow('Projects')}>
-          <p>Here are some of my projects...</p>
-        </Window>
-      )}
-      {windows['Contact'] && (
-        <Window title="Contact Me" onClose={() => closeWindow('Contact')}>
-          <p>You can reach me at...</p>
-        </Window>
-      )}
-      {windows['Junk Ideas'] && (
-        <Window title="Junk Ideas" onClose={() => closeWindow('Junk Ideas')}>
-          <p>Here are some of my junk ideas...</p>
-        </Window>
-      )}
+      {Object.entries(windows).map(([name, isOpen]) => {
+        if (!isOpen) return null;
+
+        let content = <p>This is the {name} folder.</p>;
+        if (name === 'CV') {
+          content = <p>Here is my CV...</p>;
+        } else if (name === 'Mail') {
+          content = <p>You can reach me at parth.tailor@example.com</p>;
+        } else if (name === 'Junk Ideas') {
+          content = <p>Here are some of my junk ideas...</p>;
+        }
+
+        return (
+          <Window key={name} title={name} onClose={() => closeWindow(name)}>
+            {content}
+          </Window>
+        );
+      })}
 
       {/* Dock */}
       <footer ref={dockRef} className="absolute bottom-2 left-1/2 -translate-x-1/2 flex justify-center">
-        <div className="flex items-end space-x-2 p-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg">
+        <div className="flex items-end space-x-4 p-2 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg">
           {dockItems.map((item) => (
-            <DockIcon key={item.name} name={item.name} icon={item.icon} onClick={() => openWindow(item.name)} />
+            <DockIcon key={item.name} name={item.name} icon={item.icon} onClick={item.action || (() => {})} />
           ))}
         </div>
       </footer>
