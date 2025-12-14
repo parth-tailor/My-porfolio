@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from 'next/navigation';
-import ParticleBackground from "./ParticleBackground";
 
 
 export default function LockScreen() {
@@ -44,7 +43,9 @@ export default function LockScreen() {
       className="relative h-screen w-full bg-black text-white transition-opacity duration-1000 ease-out"
       style={{ opacity }}
     >
-      <ParticleBackground />
+      <div className="absolute inset-0 bg-black">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900 opacity-80" />
+      </div>
       {/* Overlay to darken the background, but allow pointer events to pass through */}
       <div className="absolute inset-0 bg-black opacity-50 pointer-events-none" />
       {/* Centered content */}
