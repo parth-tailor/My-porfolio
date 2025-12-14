@@ -83,7 +83,7 @@ export default function Desktop() {
     const dock = dockRef.current;
     if (!dock) return;
 
-    const handleMouseMove = (e: globalThis.MouseEvent) => {
+    const handleMouseMove = (e: MouseEvent) => {
       const iconsContainer = dock.firstElementChild;
       if (!iconsContainer) return;
       const icons = Array.from(iconsContainer.children) as HTMLElement[];
